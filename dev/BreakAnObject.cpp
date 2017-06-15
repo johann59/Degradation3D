@@ -50,31 +50,35 @@ BreakAnObject::BreakAnObject(char const *input, char const *output) {
 			polyhedron_builder<HalfedgeDS> builder( coords[i], faces[i], minFacets[i] );
 			P.delegate( builder );
 			polys.push_back(P);
-
-
-
 			/*Facet_iterator v;
 			for(v= P.facets_begin();v!= P.facets_end();++v){
 				std::cout << v->halfedge()->vertex()->point() << std::endl;
 			}*/
-
 		}
 	}
+	//std::vector<Halfedge_handle> vecHalfedge;
 	for(int i = 0 ; i < polys.size() ; i++) {
 		Facet_iterator fi = polys[i].facets_begin();
 		Halfedge_handle hh = fi->halfedge();
-		for(int j = 0; j < 4;j++){
-			if((j%2) == 0){
+		for(int j = 0; j < 4 ;j++){
 				Halfedge_handle hnew = polys[i].split_edge(hh);
 				Point_3 pt1 = hnew->vertex()->point();
 				Point_3 pt2 = hnew->next()->vertex()->point();
 				hnew->vertex()->point() = meanPoints(pt1,pt2);
-			}
-			hh = hh->next();
+				//vecHalfedge.push_back(hh);
+				hh = hnew->opposite()->next()->next();
 		}
+		/*
+			Test de scindage qui n'aboutit pas
+		for(int j = 0; j<vecHalfedge.size(); j++){
+			if((j+1) == 4){
+				polys[i].split_facet(vecHalfedge[j],vecHalfedge[0]);
+			}else{
+				polys[i].split_facet(vecHalfedge[j],vecHalfedge[j+1]);
+			}
+		}*/
 		exportObj(polys[i]);
 	}
-
 }
 
 // barebones .OFF file reader, throws away texture coordinates, normals, etc.
