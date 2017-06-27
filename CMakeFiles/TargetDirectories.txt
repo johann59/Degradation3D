@@ -1,0 +1,3 @@
+/home/dev/Documents/aurel/Degradation3D/CMakeFiles/rebuild_cache.dir
+/home/dev/Documents/aurel/Degradation3D/CMakeFiles/edit_cache.dir
+/home/dev/Documents/aurel/Degradation3D/CMakeFiles/executable.dir
