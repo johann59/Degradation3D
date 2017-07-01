@@ -61,60 +61,11 @@ BreakAnObject::BreakAnObject(char const *input, char const *output) {
 		}
 	}
 	//std::vector<Halfedge_handle> vecHalfedge;
-  Polyhedron p3;
+
+	std::vector<Point_3> pointsDecoupe;
 	Polyhedron p2;
-	Polyhedron p1;
-	Halfedge_handle h1 = p1.make_tetrahedron( Point_3( 0.5, 0, 0),
-																				Point_3( 0, 0, 0.5),
-																				Point_3( 0, 0, 0),
-																				Point_3( 0, 0.5, 0));
-		Halfedge_handle g1 = h1->next()->opposite()->next();             // Fig. (a)
-		p1.split_edge( h1->next());
-		p1.split_edge( g1->next());
-		p1.split_edge( g1);                                              // Fig. (b)
-		h1->next()->vertex()->point()     = Point_3( 0.5, 0, 0.5);
-		g1->next()->vertex()->point()     = Point_3( 0, 0.5, 0.5);
-		g1->opposite()->vertex()->point() = Point_3( 0.5, 0.5, 0);            // Fig. (c)
-
-		Halfedge_handle f1 = p1.split_facet( g1->next(),
-																			 g1->next()->next()->next());																	 				// Fig. (d)
-		Halfedge_handle e1 = p1.split_edge( f1);
-		e1->vertex()->point() = Point_3( 0.5, 0.5, 0.5);                        // Fig. (e)
-		p1.split_facet( e1, f1->next()->next());                          // Fig. (f)
-		CGAL_postcondition( p1.is_valid());
-
-	Halfedge_handle h = p2.make_tetrahedron( Point_3( 1, 0, 0),
-																				Point_3( 0, 0, 1),
-																				Point_3( 0, 0, 0),
-																				Point_3( 0, 1, 0));
-		Halfedge_handle g = h->next()->opposite()->next();             // Fig. (a)
-		p2.split_edge( h->next());
-		p2.split_edge( g->next());
-		p2.split_edge( g);                                              // Fig. (b)
-		h->next()->vertex()->point()     = Point_3( 1, 0, 1);
-		g->next()->vertex()->point()     = Point_3( 0, 1, 1);
-		g->opposite()->vertex()->point() = Point_3( 1, 1, 0);            // Fig. (c)
-		Halfedge_handle f = p2.split_facet( g->next(),
-																			 g->next()->next()->next()); // Fig. (d)
-		Halfedge_handle e = p2.split_edge( f);
-		e->vertex()->point() = Point_3( 1, 1, 1);                        // Fig. (e)
-		p2.split_facet( e, f->next()->next());                          // Fig. (f)
-		CGAL_postcondition( p2.is_valid());
-
-	Nef_polyhedron n1(p2);
-	Nef_polyhedron n2(p1);
-	n1 = n1 -n2;
-
-	if (n1.is_simple()){
-		std::cout << "N1 is simple" << '\n';
-		n1.convert_to_Polyhedron(p3);
-	}else {
-		std::cout << "Nouvelle objet pas du type polyhedron" << '\n';
-	}
-
-	exportObj(p3);
-
 	for(int i = 0 ; i < polys.size() ; i++) {
+		std::cout << polys.size() << '\n';
 		Facet_iterator fi = polys[i].facets_begin();
 		Halfedge_handle hh = fi->halfedge();
 		for(int j = 0; j < 4 ;j++){
@@ -124,41 +75,76 @@ BreakAnObject::BreakAnObject(char const *input, char const *output) {
 				Point_3 pt2 = hnew->next()->vertex()->point();
 				std::cout << "P2( : " << pt2.hx() << "," << pt2.hy() << "," << pt2.hz() <<')' << '\n';
 
-				/*Point_3 pt3 = meanPoints(pt1,pt2);
+				Point_3 pt3 = meanPoints(pt1,pt2);
 				Point_3 pt4;
 				Point_3 pt5;
 				if (pt1.hx() != pt2.hx()) {
 					std::cout << "X" << '\n';
-				  pt4 = Point_3(pt3.hx()+0.2,pt3.hy(),pt3.hz());
-					pt5 = Point_3(pt3.hx()-0.2,pt3.hy(),pt3.hz());
+				  pt4 = Point_3(pt3.hx()-0.2,pt3.hy(),pt3.hz());
+					pt5 = Point_3(pt3.hx()+0.2,pt3.hy(),pt3.hz());
 				}
 				if (pt1.hy() != pt2.hy()) {
 					std::cout << "Y" << '\n';
-					pt4 = Point_3(pt3.hx(),pt3.hy()+0.2,pt3.hz());
-					pt5 = Point_3(pt3.hx(),pt3.hy()-0.2,pt3.hz());
+					pt4 = Point_3(pt3.hx(),pt3.hy()-0.2,pt3.hz());
+					pt5 = Point_3(pt3.hx(),pt3.hy()+0.2,pt3.hz());
 				}
 				if (pt1.hz() != pt2.hz()) {
 					std::cout << "Z" << '\n';
-					pt4 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()+0.2);
-					pt5 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()-0.2);
+					pt4 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()-0.2);
+					pt5 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()+0.2);
 				}
 
-				std::cout << "P3( : " << pt3.hx() << "," << pt3.hy() << "," << pt3.hz() <<')' << '\n';
-				std::cout << "P4( : " << pt4.hx() << "," << pt4.hy() << "," << pt4.hz() <<')' << '\n';
-				std::cout << "P5( : " << pt5.hx() << "," << pt5.hy() << "," << pt5.hz() <<')' << '\n';
-				hnew->vertex()->point() = pt4;
-				hnew->opposite()->vertex()->point() = pt5;
+				pointsDecoupe.push_back(pt4);
+				pointsDecoupe.push_back(pt5);
+
+				//hnew->vertex()->point() = pt4;
+				//hnew->opposite()->vertex()->point() = pt5;
 				//vecHalfedge.push_back(hh);
 
-				*/
 				hh = hnew->opposite()->next()->next();
 		}
+		Point_3 pt;
+		for (int k = 0 ; k < pointsDecoupe.size(); k++){
+			pt = pointsDecoupe[k];
+			std::cout << "P( : " << pt.hx() << "," << pt.hy() << "," << pt.hz() <<')' << '\n';
+		}
+
+		// MAKE découpe polyhedron
+
+		Halfedge_handle h = p2.make_tetrahedron( pointsDecoupe[1],
+																				pointsDecoupe[6],
+																				pointsDecoupe[0],
+																				pointsDecoupe[2]);
+		Halfedge_handle g = h->next()->opposite()->next();             // Fig. (a)
+		p2.split_edge( h->next());
+		p2.split_edge( g->next());
+		p2.split_edge( g);                                              // Fig. (b)
+		h->next()->vertex()->point()     = pointsDecoupe[7];
+		g->next()->vertex()->point()     = pointsDecoupe[4];
+		g->opposite()->vertex()->point() = pointsDecoupe[3];            // Fig. (c)
+		Halfedge_handle f = p2.split_facet( g->next(),
+																			 g->next()->next()->next()); // Fig. (d)
+		Halfedge_handle e = p2.split_edge( f);
+		e->vertex()->point() = pointsDecoupe[5];                        // Fig. (e)
+		p2.split_facet( e, f->next()->next());                          // Fig. (f)
+		CGAL_postcondition( p2.is_valid());
 
 
-		//exportObj(polys[i]);
+		exportObj(polys[i]);
 	}
-	//exportObj(p3);
-}
+	Polyhedron p3;
+	Nef_polyhedron n1(P);
+	Nef_polyhedron n2(p2);
+	n1 = n1 -n2;
+
+	if (n1.is_simple()){
+		std::cout << "N1 is simple" << '\n';
+		n1.convert_to_Polyhedron(p3);
+	}else {
+		std::cout << "Nouvelle objet pas du type polyhedron" << '\n';
+	}
+	exportObj(p3);
+	}
 
 // barebones .OFF file reader, throws away texture coordinates, normals, etc.
 // stores results in input coords array, packed [x0,y0,z0,x1,y1,z1,...] and
