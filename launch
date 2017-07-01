@@ -1,15 +1,15 @@
 #!/bin/bash
 
-cgal_create_CMakeLists -s executable 
+cgal_create_CMakeLists -s executable
 cmake -DCGAL_DIR=$HOME/CGAL-4.8.1
 make
 
-if [ $# -eq 2 ]
+if [ $# -eq 3 ]
 then
-	./executable $1 $2
+	./executable $1 $2 $3
 elif [ $# -eq 1 ]
 then
 	./executable $1 export.obj
 else
-	echo "Erreur : ./launch fileToImport nameToExport"
+	echo "Erreur : ./launch fileToImport nameToExport ecart"
 fi

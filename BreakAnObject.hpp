@@ -7,6 +7,7 @@ class BreakAnObject {
 	std::vector< std::vector<double> > coords;
 	std::vector< std::vector< std::vector<int> > > faces; // for each polyhedron, for each face, each coord.
 	char const *output;
+	double ecart;
 	std::vector<int> minFacets;
 
 	void load_obj( const char *filename );
@@ -18,5 +19,5 @@ class BreakAnObject {
 	public :
 	void exportObj();
 	void exportObj(Polyhedron P);
-	BreakAnObject(char const *input, char const *output);
+	BreakAnObject(char const *input, char const *output, double ecart);
 };

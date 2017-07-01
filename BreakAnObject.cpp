@@ -37,8 +37,7 @@ public:
 	}
 };
 
-
-BreakAnObject::BreakAnObject(char const *input, char const *output) {
+BreakAnObject::BreakAnObject(char const *input, char const *output, double ecart) {
   Polyhedron P;
 	this->output = output;
 	// load the input file
@@ -80,18 +79,18 @@ BreakAnObject::BreakAnObject(char const *input, char const *output) {
 				Point_3 pt5;
 				if (pt1.hx() != pt2.hx()) {
 					std::cout << "X" << '\n';
-				  pt4 = Point_3(pt3.hx()-0.2,pt3.hy(),pt3.hz());
-					pt5 = Point_3(pt3.hx()+0.2,pt3.hy(),pt3.hz());
+				  pt4 = Point_3(pt3.hx()-ecart,pt3.hy(),pt3.hz());
+					pt5 = Point_3(pt3.hx()+ecart,pt3.hy(),pt3.hz());
 				}
 				if (pt1.hy() != pt2.hy()) {
 					std::cout << "Y" << '\n';
-					pt4 = Point_3(pt3.hx(),pt3.hy()-0.2,pt3.hz());
-					pt5 = Point_3(pt3.hx(),pt3.hy()+0.2,pt3.hz());
+					pt4 = Point_3(pt3.hx(),pt3.hy()-ecart,pt3.hz());
+					pt5 = Point_3(pt3.hx(),pt3.hy()+ecart,pt3.hz());
 				}
 				if (pt1.hz() != pt2.hz()) {
 					std::cout << "Z" << '\n';
-					pt4 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()-0.2);
-					pt5 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()+0.2);
+					pt4 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()-ecart);
+					pt5 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()+ecart);
 				}
 
 				pointsDecoupe.push_back(pt4);
