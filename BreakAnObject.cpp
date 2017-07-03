@@ -70,25 +70,23 @@ BreakAnObject::BreakAnObject(char const *input, char const *output, int changeOr
 		if (changeOrientationCoupure == 2) { // CHANGER d'orientation de coupure 3eme cas
 			hh = hh->opposite()->next();
 		}
+		// Parcours de toutes les aretes qui nous intéressent
+		// todo parcours autre que sur une face d'un cube.
 		for(int j = 0; j < 4 ;j++){
 				Halfedge_handle hnew = polys[i].split_edge(hh);
 
 				Point_3 pt1 = hnew->vertex()->point();
-				std::cout << "P1( : " << pt1.hx() << "," << pt1.hy() << "," << pt1.hz() <<')' <<'\n';
 				Point_3 pt2 = hnew->next()->vertex()->point();
-				std::cout << "P2( : " << pt2.hx() << "," << pt2.hy() << "," << pt2.hz() <<')' << '\n';
 
 				Point_3 pt3 = meanPoints(pt1,pt2);
-				std::cout << "P3( : " << pt3.hx() << "," << pt3.hy() << "," << pt3.hz() <<')' << '\n';
 
 				// GENERATION des POINTS
 				Point_3 pt4;
 				Point_3 pt5;
-				std::cout << placementCoupure << '\n';
+
 				float k1 = placementCoupure - variation; // Placement du point sur le segment
 				float k2 = placementCoupure + variation ; // Placement du deuxième point sur le segment
 
-				std::cout << "k1 : " << k1 << '\n';
 				pt4 = Point_3(k1*(pt2.hx()-pt1.hx())+pt1.hx(),
 											k1*(pt2.hy()-pt1.hy())+pt1.hy(),
 											k1*(pt2.hz()-pt1.hz())+pt1.hz());
@@ -97,22 +95,21 @@ BreakAnObject::BreakAnObject(char const *input, char const *output, int changeOr
 											k2*(pt2.hz()-pt1.hz())+pt1.hz());
 
 
-				std::cout << "P4( : " << pt4.hx() << "," << pt4.hy() << "," << pt4.hz() <<')' <<'\n';
-				std::cout << "P5( : " << pt5.hx() << "," << pt5.hy() << "," << pt5.hz() <<')' << '\n';
 				pointsDecoupe.push_back(pt4);
 				pointsDecoupe.push_back(pt5);
-
 
 
 				hh = hnew->opposite()->next()->next();
 		}
 		Point_3 pt;
-		for (int k = 0 ; k < pointsDecoupe.size(); k++){
+
+		// AFFICHER les points de la découpe
+		 /*for (int k = 0 ; k < pointsDecoupe.size(); k++){
 			pt = pointsDecoupe[k];
 			std::cout << "P( : " << pt.hx() << "," << pt.hy() << "," << pt.hz() <<')' << '\n';
-		}
+		} */
 
-		// MAKE découpe polyhedron
+		// Création du polyhedron qui va faire la découpe
 
 		Halfedge_handle h = p2.make_tetrahedron( pointsDecoupe[1],
 																				pointsDecoupe[6],
@@ -133,15 +130,12 @@ BreakAnObject::BreakAnObject(char const *input, char const *output, int changeOr
 		CGAL_postcondition( p2.is_valid());
 
 
-		//exportObj(polys[i]);
 	}
 	Polyhedron p3;
 	Nef_polyhedron n1(P);
 	Nef_polyhedron n2(p2);
-	n1 = n1 -n2;
-	std::cout << "/* message */" << '\n';
+	n1 = n1 -n2; // todo problème découpe lors d'une face non rectiligne
 	if (n1.is_simple()){
-		std::cout << "N1 is simple" << '\n';
 		n1.convert_to_Polyhedron(p3);
 	}else {
 		std::cout << "Nouvelle objet pas du type polyhedron" << '\n';
