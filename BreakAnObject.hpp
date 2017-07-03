@@ -19,5 +19,5 @@ class BreakAnObject {
 	public :
 	void exportObj();
 	void exportObj(Polyhedron P);
-	BreakAnObject(char const *input, char const *output, double ecart);
+	BreakAnObject(char const *input, char const *output, int changeOrientationCoupure,double placementCoupure, double variation);
 };

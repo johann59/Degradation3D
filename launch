@@ -3,13 +3,12 @@
 cgal_create_CMakeLists -s executable
 cmake -DCGAL_DIR=$HOME/CGAL-4.8.1
 make
-
-if [ $# -eq 3 ]
+if [ $# -eq 5 ]
 then
-	./executable $1 $2 $3
+	./executable $1 $2 $3 $4 $5
 elif [ $# -eq 1 ]
 then
 	./executable $1 export.obj
 else
-	echo "Erreur : ./launch fileToImport nameToExport ecart"
+	echo "Erreur : ./launch fileToImport nameToExport sensCoupage placementCoupure variation"
 fi

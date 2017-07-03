@@ -1,4 +1,4 @@
-#include "TypeDefs.hpp"
+	#include "TypeDefs.hpp"
 #include "BreakAnObject.hpp"
 
 
@@ -37,7 +37,7 @@ public:
 	}
 };
 
-BreakAnObject::BreakAnObject(char const *input, char const *output, double ecart) {
+BreakAnObject::BreakAnObject(char const *input, char const *output, int changeOrientationCoupure,double placementCoupure, double variation) {
   Polyhedron P;
 	this->output = output;
 	// load the input file
@@ -53,10 +53,7 @@ BreakAnObject::BreakAnObject(char const *input, char const *output, double ecart
 			polyhedron_builder<HalfedgeDS> builder( coords[i], faces[i], minFacets[i] );
 			P.delegate( builder );
 			polys.push_back(P);
-			/*Facet_iterator v;
-			for(v= P.facets_begin();v!= P.facets_end();++v){
-				std::cout << v->halfedge()->vertex()->point() << std::endl;
-			}*/
+
 		}
 	}
 	//std::vector<Halfedge_handle> vecHalfedge;
@@ -64,41 +61,48 @@ BreakAnObject::BreakAnObject(char const *input, char const *output, double ecart
 	std::vector<Point_3> pointsDecoupe;
 	Polyhedron p2;
 	for(int i = 0 ; i < polys.size() ; i++) {
-		std::cout << polys.size() << '\n';
 		Facet_iterator fi = polys[i].facets_begin();
 		Halfedge_handle hh = fi->halfedge();
+		hh = hh->opposite()->next();
+		if (changeOrientationCoupure == 1) { // CHANGER d'orientation de coupure 2eme cas
+			hh = hh->next();
+		}
+		if (changeOrientationCoupure == 2) { // CHANGER d'orientation de coupure 3eme cas
+			hh = hh->opposite()->next();
+		}
 		for(int j = 0; j < 4 ;j++){
 				Halfedge_handle hnew = polys[i].split_edge(hh);
+
 				Point_3 pt1 = hnew->vertex()->point();
 				std::cout << "P1( : " << pt1.hx() << "," << pt1.hy() << "," << pt1.hz() <<')' <<'\n';
 				Point_3 pt2 = hnew->next()->vertex()->point();
 				std::cout << "P2( : " << pt2.hx() << "," << pt2.hy() << "," << pt2.hz() <<')' << '\n';
 
 				Point_3 pt3 = meanPoints(pt1,pt2);
+				std::cout << "P3( : " << pt3.hx() << "," << pt3.hy() << "," << pt3.hz() <<')' << '\n';
+
+				// GENERATION des POINTS
 				Point_3 pt4;
 				Point_3 pt5;
-				if (pt1.hx() != pt2.hx()) {
-					std::cout << "X" << '\n';
-				  pt4 = Point_3(pt3.hx()-ecart,pt3.hy(),pt3.hz());
-					pt5 = Point_3(pt3.hx()+ecart,pt3.hy(),pt3.hz());
-				}
-				if (pt1.hy() != pt2.hy()) {
-					std::cout << "Y" << '\n';
-					pt4 = Point_3(pt3.hx(),pt3.hy()-ecart,pt3.hz());
-					pt5 = Point_3(pt3.hx(),pt3.hy()+ecart,pt3.hz());
-				}
-				if (pt1.hz() != pt2.hz()) {
-					std::cout << "Z" << '\n';
-					pt4 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()-ecart);
-					pt5 = Point_3(pt3.hx(),pt3.hy(),pt3.hz()+ecart);
-				}
+				std::cout << placementCoupure << '\n';
+				float k1 = placementCoupure - variation; // Placement du point sur le segment
+				float k2 = placementCoupure + variation ; // Placement du deuxième point sur le segment
 
+				std::cout << "k1 : " << k1 << '\n';
+				pt4 = Point_3(k1*(pt2.hx()-pt1.hx())+pt1.hx(),
+											k1*(pt2.hy()-pt1.hy())+pt1.hy(),
+											k1*(pt2.hz()-pt1.hz())+pt1.hz());
+				pt5 = Point_3(k2*(pt2.hx()-pt1.hx())+pt1.hx(),
+											k2*(pt2.hy()-pt1.hy())+pt1.hy(),
+											k2*(pt2.hz()-pt1.hz())+pt1.hz());
+
+
+				std::cout << "P4( : " << pt4.hx() << "," << pt4.hy() << "," << pt4.hz() <<')' <<'\n';
+				std::cout << "P5( : " << pt5.hx() << "," << pt5.hy() << "," << pt5.hz() <<')' << '\n';
 				pointsDecoupe.push_back(pt4);
 				pointsDecoupe.push_back(pt5);
 
-				//hnew->vertex()->point() = pt4;
-				//hnew->opposite()->vertex()->point() = pt5;
-				//vecHalfedge.push_back(hh);
+
 
 				hh = hnew->opposite()->next()->next();
 		}
@@ -129,13 +133,13 @@ BreakAnObject::BreakAnObject(char const *input, char const *output, double ecart
 		CGAL_postcondition( p2.is_valid());
 
 
-		exportObj(polys[i]);
+		//exportObj(polys[i]);
 	}
 	Polyhedron p3;
 	Nef_polyhedron n1(P);
 	Nef_polyhedron n2(p2);
 	n1 = n1 -n2;
-
+	std::cout << "/* message */" << '\n';
 	if (n1.is_simple()){
 		std::cout << "N1 is simple" << '\n';
 		n1.convert_to_Polyhedron(p3);

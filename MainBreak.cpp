@@ -3,8 +3,8 @@
 
 int main(int argc, char** argv) {
 	srand (time(NULL));
-	if(argc != 4) {
-		std::cout << "Erreur : ./launch fileToImport nameToExport ecart" << std::endl;
+	if(argc != 6) {
+		std::cout << "Erreur : ./launch fileToImport nameToExport sensCoupure placementCoupure variation" << std::endl;
 		std::cout << atof(argv[2]) << std::endl;
 		return 1;
 	}
@@ -12,8 +12,10 @@ int main(int argc, char** argv) {
 
 	char const *input = argv[1];
 	char const *output = argv[2];
-	double ecart = atof(argv[3]);
-	BreakAnObject o(input, output, ecart);
+	int newOrientationCoupure = atof(argv[3]);
+	double placementCoupure = atof(argv[4]);
+	double variation = atof(argv[5]);
+	BreakAnObject o(input, output, newOrientationCoupure,placementCoupure,variation);
 
 	return 0;
 }
